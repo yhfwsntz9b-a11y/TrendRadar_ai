@@ -1,0 +1,22 @@
+name: AI Daily Report
+on:
+  schedule:
+    - cron: '0 1 * * *' # 每天 UTC 时间 1点 (北京时间 9点)
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 feedparser
+      - name: Run script
+        env:
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }} # 在仓库 Secrets 中配置密码
+        run: python main.py
