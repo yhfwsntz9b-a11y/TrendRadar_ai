@@ -1,22 +1,33 @@
 name: AI Daily Report
+
 on:
   schedule:
-    - cron: '0 1 * * *' # 每天 UTC 时间 1点 (北京时间 9点)
-  workflow_dispatch: # 允许手动触发
+    # UTC 时间 01:00 运行 (北京时间早上 9:00)
+    - cron: '0 1 * * *'
+  workflow_dispatch: # 这个按钮允许你在 GitHub 页面上手动点击运行测试
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-run:
+    runs-on: ubuntu-latest # 使用 GitHub 提供的 Linux 服务器
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3 # 第一步：把你的代码拉到服务器上
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4 # 第二步：安装 Python
         with:
           python-version: '3.9'
+
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install requests beautifulsoup4 feedparser
+          # 这里就是你要问的 pip！GitHub 会自动执行这行命令安装库
+
       - name: Run script
         env:
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }} # 在仓库 Secrets 中配置密码
-        run: python main.py
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}       # 读取你设置的私密变量
+          EMAIL_AUTH_CODE: ${{ secrets.EMAIL_AUTH_CODE }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+        run: python main.py # 第三步：运行脚本
